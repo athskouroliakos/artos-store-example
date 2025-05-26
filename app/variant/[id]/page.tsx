@@ -123,12 +123,6 @@ export default async function VariantPage({ params }: VariantPageProps) {
                   </div>
                 </div>
               )}
-
-              <div className="pt-6">
-                <button className="w-full bg-black text-white font-semibold py-3 px-6 rounded-lg hover:bg-gray-800 transition-colors">
-                  Add to Cart
-                </button>
-              </div>
             </div>
           </div>
         </div>
