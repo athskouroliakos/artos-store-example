@@ -40,10 +40,10 @@ export interface Product {
 
 const storeId = "d96f13bb-acca-4aa1-b5d5-996cd58d7bd5"; //put your store id here to fetch products from your store
 
-async function getProducts() {
+async function getProducts(page = 1, limit = 12) {
   try {
     const response = await fetch(
-      `https://api.artosapp.com/store/products?storeId=${storeId}`,
+      `https://api.artosapp.com/store/products?page=${page}&limit=${limit}`,
       {
         headers: {
           "x-store-id": storeId,
@@ -52,23 +52,26 @@ async function getProducts() {
         },
       }
     );
-
-    if (!response.ok) {
+    if (!response.ok)
       throw new Error(
         `Failed to fetch products: ${response.status} ${response.statusText}`
       );
-    }
-
     const data = await response.json();
-    return data.data || [];
+    return data;
   } catch (error) {
     console.error("Error fetching products:", error);
-    return [];
+    return { data: [], meta: { totalPages: 1, totalItems: 0 } };
   }
 }
 
-export default async function Home() {
-  const products = await getProducts();
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
+  const page = Number(searchParams?.page) || 1;
+  const limit = 12;
+  const { data: products, meta } = await getProducts(page, limit);
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -83,6 +86,22 @@ export default async function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full">
             {products.map((product: Product) => (
               <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
+        {/* Pagination Controls */}
+        {meta && meta.totalPages > 1 && (
+          <div className="flex gap-2 mt-8">
+            {Array.from({ length: meta.totalPages }, (_, i) => (
+              <a
+                key={i + 1}
+                href={`?page=${i + 1}`}
+                className={`px-3 py-1 rounded border ${
+                  page === i + 1 ? "bg-black text-white" : "bg-white text-black"
+                }`}
+              >
+                {i + 1}
+              </a>
             ))}
           </div>
         )}

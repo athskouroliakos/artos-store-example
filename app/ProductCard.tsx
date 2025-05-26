@@ -3,12 +3,16 @@ import Image from "next/image";
 import { useState } from "react";
 import { Variant } from "./page";
 import { Product } from "./page";
-
+import Link from "next/link";
 
 export default function ProductCard({ product }: { product: Product }) {
-  const [selectedVariant, setSelectedVariant] = useState<Variant>(
-    product.variants[0]
+  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(
+    product.variants?.[0] || null
   );
+
+  if (!selectedVariant) {
+    return null;
+  }
 
   // Get all images for thumbnails (from all variants)
   const allImages = product.variants.flatMap((v) =>
@@ -27,7 +31,7 @@ export default function ProductCard({ product }: { product: Product }) {
     <div className="relative bg-white rounded-xl shadow-md p-4 flex flex-col items-center border">
       {/* Main Image */}
       {mainImage && (
-        <div className="w-full h-64 flex items-center justify-center bg-gray-50 rounded-lg mb-3 overflow-hidden">
+        <div className="w-full h-64 relative mb-4">
           <Image
             src={mainImage}
             alt={product.name}
@@ -77,9 +81,16 @@ export default function ProductCard({ product }: { product: Product }) {
         ))}
       </div>
       {/* Price */}
-      <div className="font-bold text-xl text-black mb-1">
+      <div className="font-bold text-xl text-black mb-4">
         ${selectedVariant.price.toFixed(2)}
       </div>
+      {/* Buy Now Button */}
+      <Link
+        href={`/variant/${selectedVariant.id}`}
+        className="w-full bg-black text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors text-center"
+      >
+        Buy Now
+      </Link>
     </div>
   );
 }
